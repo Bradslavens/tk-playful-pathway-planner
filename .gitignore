@@ -41,6 +41,9 @@ Thumbs.db
 *.json
 !lesson_planner/data/*.json
 
+# Windows build output
+dist_windows/
+
 # Wine build artifacts
 *.exe
 *.dll

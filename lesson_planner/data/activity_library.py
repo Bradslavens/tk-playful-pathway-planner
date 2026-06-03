@@ -1,10 +1,18 @@
 import json
+import sys
 from pathlib import Path
 from typing import List, Optional
 from lesson_planner.models.activity import Activity
 
 
-_DEFAULT_SEED = Path(__file__).parent / "seed_activities.json"
+def _default_seed_path() -> Path:
+    # When frozen by PyInstaller, data files are extracted to sys._MEIPASS.
+    if getattr(sys, "frozen", False):
+        return Path(sys._MEIPASS) / "lesson_planner" / "data" / "seed_activities.json"
+    return Path(__file__).parent / "seed_activities.json"
+
+
+_DEFAULT_SEED = _default_seed_path()
 
 
 def _activity_from_dict(d: dict) -> Activity:
