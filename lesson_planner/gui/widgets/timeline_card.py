@@ -7,13 +7,18 @@ from PySide6.QtGui import QDrag
 
 from lesson_planner.models.schedule_block import ScheduleBlock
 from lesson_planner.gui.colors import bg_for_domain, border_for_domain
+from lesson_planner.gui.widgets.library_card import (
+    MIME_TYPE as MIME_TYPE_LIBRARY,
+    activity_id_from_mime,
+)
 
 MIME_TYPE_TIMELINE = "application/x-timeline-index"
 
 
 class TimelineCard(QFrame):
     remove_requested = Signal(int)
-    move_requested = Signal(int, int)  # from_index, to_index
+    move_requested = Signal(int, int)        # from_index, to_index
+    library_drop_requested = Signal(str, int)  # activity_id, insert_index
 
     def __init__(self, block: ScheduleBlock, index: int, start_label: str, parent=None):
         super().__init__(parent)
@@ -106,13 +111,25 @@ class TimelineCard(QFrame):
         drag.setHotSpot(event.pos())
         drag.exec(Qt.MoveAction)
 
-    # ── Accept drop from another timeline card ───────────────────────────────
+    # ── Accept drops: reorder from timeline, or insert from library ───────────
     def dragEnterEvent(self, event):
-        if event.mimeData().hasFormat(MIME_TYPE_TIMELINE):
+        mime = event.mimeData()
+        if mime.hasFormat(MIME_TYPE_TIMELINE) or mime.hasFormat(MIME_TYPE_LIBRARY):
             event.acceptProposedAction()
 
+    def _drop_after(self, event) -> bool:
+        """True if the drop landed on the lower half of the card."""
+        return event.position().y() > self.height() / 2
+
     def dropEvent(self, event):
-        from_index = int(event.mimeData().data(MIME_TYPE_TIMELINE).data().decode())
-        if from_index != self.index:
-            self.move_requested.emit(from_index, self.index)
+        mime = event.mimeData()
+        activity_id = activity_id_from_mime(mime)
+        if activity_id is not None:
+            insert_index = self.index + 1 if self._drop_after(event) else self.index
+            self.library_drop_requested.emit(activity_id, insert_index)
+        elif mime.hasFormat(MIME_TYPE_TIMELINE):
+            from_index = int(mime.data(MIME_TYPE_TIMELINE).data().decode())
+            to_index = self.index + 1 if self._drop_after(event) else self.index
+            if from_index != to_index:
+                self.move_requested.emit(from_index, to_index)
         event.acceptProposedAction()

@@ -4,13 +4,13 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QScrollArea,
     QFrame, QSizePolicy, QTimeEdit, QSpinBox
 )
-from PySide6.QtCore import Qt, Signal, QMimeData, QTime
+from PySide6.QtCore import Qt, Signal, QMimeData, QTime, QTimer
 from PySide6.QtGui import QDragEnterEvent, QDropEvent
 
 from lesson_planner.models.daily_schedule import DailySchedule
 from lesson_planner.models.activity import Activity
 from lesson_planner.data.activity_library import ActivityLibrary
-from lesson_planner.gui.widgets.library_card import MIME_TYPE
+from lesson_planner.gui.widgets.library_card import MIME_TYPE, activity_id_from_mime
 from lesson_planner.gui.widgets.timeline_card import TimelineCard, MIME_TYPE_TIMELINE
 
 
@@ -21,24 +21,55 @@ def _fmt_time(t: time) -> str:
 
 
 class DropZone(QFrame):
-    """Thin horizontal bar that appears between cards as a drop target."""
+    """Horizontal drop target. Thin bar between cards, or a large placeholder
+    that fills the empty schedule so the first activity has somewhere to land."""
     dropped_from_library = Signal(str, int)    # activity_id, insert_index
     dropped_from_timeline = Signal(int, int)   # from_index, to_index
 
-    def __init__(self, insert_index: int, parent=None):
+    def __init__(self, insert_index: int, parent=None, placeholder: str = None,
+                 expand: bool = False):
         super().__init__(parent)
         self.insert_index = insert_index
-        self.setFixedHeight(12)
+        self._placeholder = placeholder
+        self._expand = expand
+        if placeholder:
+            self.setMinimumHeight(120)
+            self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+            self._label = QLabel(placeholder, self)
+            self._label.setAlignment(Qt.AlignCenter)
+            layout = QVBoxLayout(self)
+            layout.addWidget(self._label)
+        elif expand:
+            # Invisible catch-all that fills the empty space below the last card,
+            # so dropping anywhere in the timeline appends instead of bouncing.
+            self.setMinimumHeight(40)
+            self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        else:
+            self.setFixedHeight(12)
         self.setAcceptDrops(True)
         self._idle_style()
 
     def _idle_style(self):
-        self.setStyleSheet("background: transparent; border: none;")
+        if self._placeholder:
+            self.setStyleSheet(
+                "background: transparent; border: 2px dashed #d0d0d0; border-radius: 8px;"
+            )
+            self._label.setStyleSheet(
+                "color: #aaa; font-size: 11pt; font-style: italic; "
+                "background: transparent; border: none;"
+            )
+        else:
+            self.setStyleSheet("background: transparent; border: none;")
 
     def _hover_style(self):
         self.setStyleSheet(
             "background: #A8D8EA; border: 2px dashed #5AA0C0; border-radius: 4px;"
         )
+        if self._placeholder:
+            self._label.setStyleSheet(
+                "color: #2c3e50; font-size: 11pt; font-weight: bold; "
+                "background: transparent; border: none;"
+            )
 
     def dragEnterEvent(self, event: QDragEnterEvent):
         if event.mimeData().hasFormat(MIME_TYPE) or event.mimeData().hasFormat(MIME_TYPE_TIMELINE):
@@ -51,8 +82,8 @@ class DropZone(QFrame):
     def dropEvent(self, event: QDropEvent):
         self._idle_style()
         mime = event.mimeData()
-        if mime.hasFormat(MIME_TYPE):
-            activity_id = mime.data(MIME_TYPE).data().decode()
+        activity_id = activity_id_from_mime(mime)
+        if activity_id is not None:
             self.dropped_from_library.emit(activity_id, self.insert_index)
         elif mime.hasFormat(MIME_TYPE_TIMELINE):
             from_index = int(mime.data(MIME_TYPE_TIMELINE).data().decode())
@@ -136,12 +167,13 @@ class TimelinePanel(QWidget):
         blocks = self._schedule.blocks
 
         if not blocks:
-            empty = QLabel("Drag activities here to build your day →")
-            empty.setAlignment(Qt.AlignCenter)
-            empty.setStyleSheet(
-                "color: #aaa; font-size: 11pt; font-style: italic; padding: 40px;"
+            empty_zone = DropZone(
+                insert_index=0,
+                placeholder="Drag activities here to build your day",
             )
-            self._content_layout.addWidget(empty)
+            empty_zone.dropped_from_library.connect(self._on_library_drop)
+            empty_zone.dropped_from_timeline.connect(self._on_timeline_reorder)
+            self._content_layout.addWidget(empty_zone)
             self._content_layout.addStretch()
             self._total_label.setText("No activities yet — drag some in!")
             return
@@ -157,15 +189,15 @@ class TimelinePanel(QWidget):
             card = TimelineCard(block, index=i, start_label=_fmt_time(start_t))
             card.remove_requested.connect(self._on_remove)
             card.move_requested.connect(self._on_timeline_reorder)
+            card.library_drop_requested.connect(self._on_library_drop)
             self._content_layout.addWidget(card)
 
-        # Final drop zone after the last card
-        last_zone = DropZone(insert_index=len(blocks))
+        # Final, expanding drop zone fills the rest of the panel so a drop
+        # anywhere below the last card appends — not just on a 12px sliver.
+        last_zone = DropZone(insert_index=len(blocks), expand=True)
         last_zone.dropped_from_library.connect(self._on_library_drop)
         last_zone.dropped_from_timeline.connect(self._on_timeline_reorder)
-        self._content_layout.addWidget(last_zone)
-
-        self._content_layout.addStretch()
+        self._content_layout.addWidget(last_zone, stretch=1)
 
         total = self._schedule.total_minutes
         hours, mins = divmod(total, 60)
@@ -177,11 +209,16 @@ class TimelinePanel(QWidget):
         self.schedule_changed.emit()
 
     # ── Slot handlers ────────────────────────────────────────────────────────
+    # NOTE: drop handlers run *inside* the source widget's QDrag.exec() loop.
+    # Tearing down and rebuilding the timeline synchronously here would destroy
+    # the drop-target widget mid-event and corrupt Qt's global drag state — after
+    # which no further drag can start. So we mutate the model now but defer the
+    # rebuild to the next event-loop tick, once drag.exec() has fully unwound.
     def _on_library_drop(self, activity_id: str, insert_index: int):
         activity = self._library.by_id(activity_id)
         if activity:
             self._schedule.add_activity(activity, at_index=insert_index)
-            self._refresh()
+            self._refresh_deferred()
 
     def _on_remove(self, index: int):
         self._schedule.remove_block(index)
@@ -193,7 +230,10 @@ class TimelinePanel(QWidget):
         clamped = min(to_index, max_to)
         if from_index != clamped:
             self._schedule.move_block(from_index, clamped)
-        self._refresh()
+        self._refresh_deferred()
+
+    def _refresh_deferred(self):
+        QTimer.singleShot(0, self._refresh)
 
     def replace_schedule(self, schedule: DailySchedule):
         """Swap in a new schedule (used by File → New / Open)."""
