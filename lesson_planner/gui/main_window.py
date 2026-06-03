@@ -12,6 +12,7 @@ from PySide6.QtGui import QAction, QKeySequence
 from lesson_planner.models.daily_schedule import DailySchedule
 from lesson_planner.data.activity_library import ActivityLibrary
 from lesson_planner.data.schedule_io import save_schedule, load_schedule, FILE_EXTENSION
+from lesson_planner.export.pdf_export import export_pdf
 from lesson_planner.gui.activity_library_panel import ActivityLibraryPanel
 from lesson_planner.gui.timeline_panel import TimelinePanel
 from lesson_planner.gui.inspector_panel import InspectorPanel
@@ -98,6 +99,13 @@ class MainWindow(QMainWindow):
 
         file_menu.addSeparator()
 
+        export_act = QAction("Export &PDF…", self)
+        export_act.setShortcut("Ctrl+P")
+        export_act.triggered.connect(self._on_export_pdf)
+        file_menu.addAction(export_act)
+
+        file_menu.addSeparator()
+
         exit_act = QAction("E&xit", self)
         exit_act.setShortcut(QKeySequence.Quit)
         exit_act.triggered.connect(self.close)
@@ -163,6 +171,29 @@ class MainWindow(QMainWindow):
             path = path.with_suffix(FILE_EXTENSION)
         self._write(path)
         self._current_path = path
+
+    def _on_export_pdf(self):
+        if self._schedule.is_empty():
+            QMessageBox.information(
+                self, "Nothing to export",
+                "Add some activities to your schedule before exporting."
+            )
+            return
+        default = str(Path.home() / f"{self._schedule.name}.pdf")
+        path_str, _ = QFileDialog.getSaveFileName(
+            self, "Export PDF", default, "PDF files (*.pdf)"
+        )
+        if not path_str:
+            return
+        path = Path(path_str)
+        if path.suffix.lower() != ".pdf":
+            path = path.with_suffix(".pdf")
+        try:
+            export_pdf(self._schedule, path)
+        except Exception as e:
+            QMessageBox.critical(self, "Export failed", str(e))
+            return
+        self._status.showMessage(f"PDF exported: {path.name}")
 
     def _write(self, path: Path):
         try:
