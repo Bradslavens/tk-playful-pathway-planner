@@ -194,3 +194,11 @@ class TimelinePanel(QWidget):
         if from_index != clamped:
             self._schedule.move_block(from_index, clamped)
         self._refresh()
+
+    def replace_schedule(self, schedule: DailySchedule):
+        """Swap in a new schedule (used by File → New / Open)."""
+        self._schedule = schedule
+        t = schedule.start_time
+        from PySide6.QtCore import QTime
+        self._start_edit.setTime(QTime(t.hour, t.minute))
+        self._refresh()
