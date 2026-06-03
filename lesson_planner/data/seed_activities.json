@@ -1,0 +1,178 @@
+[
+  {
+    "id": "morning_greeting",
+    "title": "Morning Greeting Circle",
+    "domain": "Social-Emotional",
+    "suggested_minutes": 10,
+    "icon": "👋",
+    "description": "Children share how they feel and practice friendship skills.",
+    "materials": ["Feelings chart", "Soft seating"],
+    "energy_level": "low",
+    "adaptations": ["Picture schedule for English learners"]
+  },
+  {
+    "id": "block_exploration",
+    "title": "Block Building & Engineering",
+    "domain": "Mathematics",
+    "suggested_minutes": 20,
+    "icon": "🧱",
+    "description": "Children build towers, bridges, and roads while exploring shapes and stability.",
+    "materials": ["Wooden unit blocks", "People & animal figures"],
+    "energy_level": "medium",
+    "adaptations": ["Add visual invitation cards"]
+  },
+  {
+    "id": "outdoor_gross_motor",
+    "title": "Outdoor Running & Movement",
+    "domain": "Physical",
+    "suggested_minutes": 15,
+    "icon": "🏃",
+    "description": "Active play that develops large muscles and coordination.",
+    "materials": ["Balls", "Cones", "Music player"],
+    "energy_level": "high",
+    "adaptations": ["Quiet alternative zone for sensory needs"]
+  },
+  {
+    "id": "story_time",
+    "title": "Interactive Story Time",
+    "domain": "Language",
+    "suggested_minutes": 12,
+    "icon": "📖",
+    "description": "Rich discussion and vocabulary building through high-quality picture books.",
+    "materials": ["Big book", "Puppets", "Prop box"],
+    "energy_level": "low",
+    "adaptations": ["Second reading with props for DLLs"]
+  },
+  {
+    "id": "sensory_bin",
+    "title": "Sensory Bin Exploration",
+    "domain": "Science",
+    "suggested_minutes": 18,
+    "icon": "🌾",
+    "description": "Hands-on exploration of textures, measurement, and science concepts.",
+    "materials": ["Rice or beans", "Scoops", "Hidden treasures"],
+    "energy_level": "medium",
+    "adaptations": ["Gloves or alternative texture station"]
+  },
+  {
+    "id": "art_studio",
+    "title": "Art Studio - Process Art",
+    "domain": "Arts",
+    "suggested_minutes": 15,
+    "icon": "🎨",
+    "description": "Open-ended creative expression with varied materials.",
+    "materials": ["Easel paper", "Tempera paint", "Collage items"],
+    "energy_level": "medium",
+    "adaptations": ["Pre-cut shapes and no-drip tools"]
+  },
+  {
+    "id": "free_choice",
+    "title": "Choice Time / Learning Centers",
+    "domain": "Approaches to Learning",
+    "suggested_minutes": 25,
+    "icon": "🔀",
+    "description": "Child-led play across dramatic play, blocks, art, library, and puzzle areas.",
+    "materials": ["Rotating center materials"],
+    "energy_level": "medium",
+    "adaptations": ["Visual choice board"]
+  },
+  {
+    "id": "dramatic_play",
+    "title": "Dramatic Play - Community Helpers",
+    "domain": "Social-Emotional",
+    "suggested_minutes": 18,
+    "icon": "👩‍🍳",
+    "description": "Imaginative play developing empathy, language, and social roles.",
+    "materials": ["Dramatic play props", "Dress-up clothes"],
+    "energy_level": "medium",
+    "adaptations": ["Visual cue cards for play scenarios"]
+  },
+  {
+    "id": "pattern_math",
+    "title": "Pattern Hunt & Creation",
+    "domain": "Mathematics",
+    "suggested_minutes": 12,
+    "icon": "🔴🟡🔵",
+    "description": "Children discover, extend, and create patterns using many materials.",
+    "materials": ["Pattern blocks", "Unifix cubes", "Nature items"],
+    "energy_level": "low",
+    "adaptations": ["Pre-made pattern cards"]
+  },
+  {
+    "id": "read_aloud_plus",
+    "title": "Read Aloud + Extension Activity",
+    "domain": "Language",
+    "suggested_minutes": 15,
+    "icon": "📚",
+    "description": "Deep comprehension and retelling practice after a rich read aloud.",
+    "materials": ["Big book", "Retelling props or puppets"],
+    "energy_level": "low",
+    "adaptations": ["Bilingual labeling"]
+  },
+  {
+    "id": "water_table",
+    "title": "Water Table Investigation",
+    "domain": "Science",
+    "suggested_minutes": 20,
+    "icon": "💧",
+    "description": "Floating/sinking, volume, and scientific thinking with water.",
+    "materials": ["Water table", "Various objects", "Towels"],
+    "energy_level": "medium",
+    "adaptations": ["Sensory-friendly water toys"]
+  },
+  {
+    "id": "music_movement",
+    "title": "Music & Movement Circle",
+    "domain": "Arts",
+    "suggested_minutes": 12,
+    "icon": "🎵",
+    "description": "Rhythm, coordination, and joyful self-expression through song and dance.",
+    "materials": ["Drums", "Scarves", "Recorded music"],
+    "energy_level": "high",
+    "adaptations": ["Seated movement choices"]
+  },
+  {
+    "id": "puzzle_time",
+    "title": "Table Puzzles & Fine Motor",
+    "domain": "Physical",
+    "suggested_minutes": 10,
+    "icon": "🧩",
+    "description": "Problem solving and hand strength with age-appropriate puzzles.",
+    "materials": ["Floor puzzles", "Inset puzzles", "Lacing cards"],
+    "energy_level": "low",
+    "adaptations": ["Picture matching support"]
+  },
+  {
+    "id": "nature_walk",
+    "title": "Outdoor Nature Walk",
+    "domain": "Science",
+    "suggested_minutes": 15,
+    "icon": "🌳",
+    "description": "Observation skills and language development through guided exploration.",
+    "materials": ["Clipboards", "Magnifying glasses", "Collection bags"],
+    "energy_level": "medium",
+    "adaptations": ["Wheels for mobility needs"]
+  },
+  {
+    "id": "writing_center",
+    "title": "Emergent Writing Center",
+    "domain": "Language",
+    "suggested_minutes": 15,
+    "icon": "✏️",
+    "description": "Scribbling, name writing, and mark-making with authentic purposes.",
+    "materials": ["Clipboards", "Markers", "Envelopes", "Stamps"],
+    "energy_level": "low",
+    "adaptations": ["Stamped letter starters"]
+  },
+  {
+    "id": "calm_down_corner",
+    "title": "Calm Down & Self-Regulation Time",
+    "domain": "Social-Emotional",
+    "suggested_minutes": 8,
+    "icon": "🧘",
+    "description": "Tools and quiet space for children to practice calming strategies.",
+    "materials": ["Breathing tools", "Fidgets", "Visual calm-down steps"],
+    "energy_level": "low",
+    "adaptations": ["Teacher check-ins available"]
+  }
+]

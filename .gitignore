@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Virtual environments
+.venv/
+.venv-spike/
+.venv-pyside-spike/
+venv/
+env/
+
+# Pytest / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# PyInstaller build output
+build/
+dist/
+*.spec
+
+# Distribution / packaging
+*.egg-info/
+*.egg
+.eggs/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Saved schedules (user data, not source)
+*.json
+!lesson_planner/data/*.json
+
+# Wine build artifacts
+*.exe
+*.dll
